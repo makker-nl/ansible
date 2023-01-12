@@ -1,0 +1,32 @@
+---
+- hosts: infraserver1
+  become: true
+  remote_user: oracle
+  vars:
+    version: "341"
+    java_install_bin_home: /media/sf_Stage/installBinaries/Oracle/Java
+    java_tar: jdk-8u{{ version }}-linux-x64.tar.gz
+    java_name: jdk1.8.0_341{{ version }}
+    java_home: /app/oracle/product/jdk8
+  tasks:
+  - name: "Create JAVA_HOME {{ java_home }}"
+    file:
+        path: "{{ java_home }}"
+        state: directory 
+        owner: oracle
+        group: oinstall
+        mode: 0775
+  - name: "Unpack Java 8 update {{ version }} from tar file {{ java_tar }}"
+    unarchive:
+      src: "{{ java_install_bin_home }}/{{ java_tar }}"
+      remote_src: true
+      dest: "{{ java_home }}"
+      owner: oracle
+      group: oinstall
+      extra_opts: [--strip-components=1]
+  - name: fix permissions
+    file:
+      path: "{{ java_home }}"
+      owner: oracle
+      group: oinstall
+      recurse: yes
